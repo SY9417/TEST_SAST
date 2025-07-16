@@ -7,12 +7,12 @@
 #include <sys/stat.h> // for open()
 #include <time.h> // for time() and srand()
 
-// »ç¿ëÀÚ ÀÔ·Â ½Ã¹Ä·¹ÀÌ¼Ç ÇÔ¼ö
+// ì‚¬ìš©ì ì…ë ¥ ì‹œë®¬ë ˆì´ì…˜ í•¨ìˆ˜
 char* get_user_input(const char* prompt) {
     printf("%s", prompt);
     static char buffer[256];
     if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-        // °³Çà ¹®ÀÚ Á¦°Å
+        // ê°œí–‰ ë¬¸ì ì œê±°
         buffer[strcspn(buffer, "\n")] = 0;
         return buffer;
     }
@@ -26,62 +26,62 @@ int main(int argc, char *argv[]) {
     char temp_filename[L_tmpnam];
     const char* user_format_string = "%s, %d\n"; // Example format string
 
-    printf("--- Semgrep p/security Å×½ºÆ® ÄÚµå ---\n\n");
+    printf("--- Semgrep p/security í…ŒìŠ¤íŠ¸ ì½”ë“œ ---\n\n");
 
-    // 1. ¹öÆÛ ¿À¹öÇÃ·Î¿ì (Buffer Overflow) - CWE-119, CWE-120
-    // Çà¾ÈºÎ °¡ÀÌµå: '¸Ş¸ğ¸® ¹öÆÛ ¿À¹öÇÃ·Î¿ì' °ü·Ã
-    printf("[Ãë¾àÁ¡ 1] ¹öÆÛ ¿À¹öÇÃ·Î¿ì (CWE-120) - strcpy »ç¿ë\n");
+    // 1. ë²„í¼ ì˜¤ë²„í”Œë¡œìš° (Buffer Overflow) - CWE-119, CWE-120
+    // í–‰ì•ˆë¶€ ê°€ì´ë“œ: 'ë©”ëª¨ë¦¬ ë²„í¼ ì˜¤ë²„í”Œë¡œìš°' ê´€ë ¨
+    printf("[ì·¨ì•½ì  1] ë²„í¼ ì˜¤ë²„í”Œë¡œìš° (CWE-120) - strcpy ì‚¬ìš©\n");
     if (argc > 1) {
-        // ¿ÜºÎ ÀÔ·ÂÀÌ ¹öÆÛ Å©±âº¸´Ù Å¬ °æ¿ì ¿À¹öÇÃ·Î¿ì ¹ß»ı
-        strcpy(buffer, argv[1]); // <--- SemgrepÀÌ Å½ÁöÇÒ °¡´É¼º ³ôÀ½
+        // ì™¸ë¶€ ì…ë ¥ì´ ë²„í¼ í¬ê¸°ë³´ë‹¤ í´ ê²½ìš° ì˜¤ë²„í”Œë¡œìš° ë°œìƒ
+        strcpy(buffer, argv[1]); // <--- Semgrepì´ íƒì§€í•  ê°€ëŠ¥ì„± ë†’ìŒ
         printf("Buffer content: %s\n", buffer);
     } else {
         printf("Usage: %s <long_string_to_overflow>\n", argv[0]);
     }
     printf("----------------------------------------\n\n");
 
-    // 2. ¸í·É¾î »ğÀÔ (Command Injection) - CWE-78
-    // Çà¾ÈºÎ °¡ÀÌµå: '¿î¿µÃ¼Á¦ ¸í·É¾î »ğÀÔ' °ü·Ã
-    printf("[Ãë¾àÁ¡ 2] ¸í·É¾î »ğÀÔ (CWE-78) - system() »ç¿ë\n");
-    char* input = get_user_input("¸í·É¾î¸¦ ÀÔ·ÂÇÏ¼¼¿ä (¿¹: ls -la): ");
+    // 2. ëª…ë ¹ì–´ ì‚½ì… (Command Injection) - CWE-78
+    // í–‰ì•ˆë¶€ ê°€ì´ë“œ: 'ìš´ì˜ì²´ì œ ëª…ë ¹ì–´ ì‚½ì…' ê´€ë ¨
+    printf("[ì·¨ì•½ì  2] ëª…ë ¹ì–´ ì‚½ì… (CWE-78) - system() ì‚¬ìš©\n");
+    char* input = get_user_input("ëª…ë ¹ì–´ë¥¼ ì…ë ¥í•˜ì„¸ìš” (ì˜ˆ: ls -la): ");
     if (input) {
-        sprintf(command, "echo \"%s\"", input); // <--- SemgrepÀÌ Å½ÁöÇÒ °¡´É¼º ³ôÀ½
-        printf("½ÇÇàµÉ ¸í·É¾î: %s\n", command);
+        sprintf(command, "echo \"%s\"", input); // <--- Semgrepì´ íƒì§€í•  ê°€ëŠ¥ì„± ë†’ìŒ
+        printf("ì‹¤í–‰ë  ëª…ë ¹ì–´: %s\n", command);
         system(command);
     }
     printf("----------------------------------------\n\n");
 
-    // 3. ¾ÈÀüÇÏÁö ¾ÊÀº ÀÓ½Ã ÆÄÀÏ »ı¼º (Insecure Temporary File Creation) - CWE-377
-    // Çà¾ÈºÎ °¡ÀÌµå: '¾ÈÀüÇÏÁö ¾ÊÀº ÀÓ½ÃÆÄÀÏ »ı¼º' °ü·Ã
-    printf("[Ãë¾àÁ¡ 3] ¾ÈÀüÇÏÁö ¾ÊÀº ÀÓ½Ã ÆÄÀÏ »ı¼º (CWE-377) - tmpnam() »ç¿ë\n");
-    // tmpnam()Àº ¿¹Ãø °¡´ÉÇÑ ÆÄÀÏ ÀÌ¸§À» »ı¼ºÇÏ¿© °æÀï Á¶°Ç¿¡ Ãë¾àÇÔ
-    tmpnam(temp_filename); // <--- SemgrepÀÌ Å½ÁöÇÒ °¡´É¼º ³ôÀ½
-    printf("»ı¼ºµÉ ÀÓ½Ã ÆÄÀÏ ÀÌ¸§: %s\n", temp_filename);
-    // ½ÇÁ¦ ÆÄÀÏ »ı¼º ·ÎÁ÷ (¿¹½Ã)
+    // 3. ì•ˆì „í•˜ì§€ ì•Šì€ ì„ì‹œ íŒŒì¼ ìƒì„± (Insecure Temporary File Creation) - CWE-377
+    // í–‰ì•ˆë¶€ ê°€ì´ë“œ: 'ì•ˆì „í•˜ì§€ ì•Šì€ ì„ì‹œíŒŒì¼ ìƒì„±' ê´€ë ¨
+    printf("[ì·¨ì•½ì  3] ì•ˆì „í•˜ì§€ ì•Šì€ ì„ì‹œ íŒŒì¼ ìƒì„± (CWE-377) - tmpnam() ì‚¬ìš©\n");
+    // tmpnam()ì€ ì˜ˆì¸¡ ê°€ëŠ¥í•œ íŒŒì¼ ì´ë¦„ì„ ìƒì„±í•˜ì—¬ ê²½ìŸ ì¡°ê±´ì— ì·¨ì•½í•¨
+    tmpnam(temp_filename); // <--- Semgrepì´ íƒì§€í•  ê°€ëŠ¥ì„± ë†’ìŒ
+    printf("ìƒì„±ë  ì„ì‹œ íŒŒì¼ ì´ë¦„: %s\n", temp_filename);
+    // ì‹¤ì œ íŒŒì¼ ìƒì„± ë¡œì§ (ì˜ˆì‹œ)
     int fd = open(temp_filename, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
     if (fd != -1) {
-        printf("ÀÓ½Ã ÆÄÀÏ »ı¼º ¼º°ø: %s\n", temp_filename);
+        printf("ì„ì‹œ íŒŒì¼ ìƒì„± ì„±ê³µ: %s\n", temp_filename);
         close(fd);
     } else {
-        perror("ÀÓ½Ã ÆÄÀÏ »ı¼º ½ÇÆĞ");
+        perror("ì„ì‹œ íŒŒì¼ ìƒì„± ì‹¤íŒ¨");
     }
     printf("----------------------------------------\n\n");
 
-    // 4. Æ÷¸Ë ½ºÆ®¸µ Ãë¾àÁ¡ (Format String Vulnerability) - CWE-134
-    // Çà¾ÈºÎ °¡ÀÌµå: 'Æ÷¸Ë ½ºÆ®¸µ »ğÀÔ' °ü·Ã
-    printf("[Ãë¾àÁ¡ 4] Æ÷¸Ë ½ºÆ®¸µ Ãë¾àÁ¡ (CWE-134)\n");
-    char* user_provided_string = get_user_input("Ãâ·ÂÇÒ ¹®ÀÚ¿­À» ÀÔ·ÂÇÏ¼¼¿ä (¿¹: %x %x %x): ");
+    // 4. í¬ë§· ìŠ¤íŠ¸ë§ ì·¨ì•½ì  (Format String Vulnerability) - CWE-134
+    // í–‰ì•ˆë¶€ ê°€ì´ë“œ: 'í¬ë§· ìŠ¤íŠ¸ë§ ì‚½ì…' ê´€ë ¨
+    printf("[ì·¨ì•½ì  4] í¬ë§· ìŠ¤íŠ¸ë§ ì·¨ì•½ì  (CWE-134)\n");
+    char* user_provided_string = get_user_input("ì¶œë ¥í•  ë¬¸ìì—´ì„ ì…ë ¥í•˜ì„¸ìš” (ì˜ˆ: %x %x %x): ");
     if (user_provided_string) {
-        printf(user_provided_string); // <--- SemgrepÀÌ Å½ÁöÇÒ °¡´É¼º ³ôÀ½
+        printf(user_provided_string); // <--- Semgrepì´ íƒì§€í•  ê°€ëŠ¥ì„± ë†’ìŒ
         printf("\n");
     }
     printf("----------------------------------------\n\n");
 
-    // 5. ÇÏµåÄÚµåµÈ ºñ¹Ğ¹øÈ£ (Hardcoded Password) - CWE-798
-    // Çà¾ÈºÎ °¡ÀÌµå: 'ÇÏµåÄÚµåµÈ Áß¿äÁ¤º¸' °ü·Ã
-    printf("[Ãë¾àÁ¡ 5] ÇÏµåÄÚµåµÈ ºñ¹Ğ¹øÈ£ (CWE-798)\n");
-    const char* admin_password = "very_secret_hardcoded_password"; // <--- SemgrepÀÌ Å½ÁöÇÒ °¡´É¼º ³ôÀ½
-    printf("°ü¸®ÀÚ ºñ¹Ğ¹øÈ£°¡ ÄÚµå¿¡ Á÷Á¢ Æ÷ÇÔµÇ¾î ÀÖ½À´Ï´Ù.\n");
+    // 5. í•˜ë“œì½”ë“œëœ ë¹„ë°€ë²ˆí˜¸ (Hardcoded Password) - CWE-798
+    // í–‰ì•ˆë¶€ ê°€ì´ë“œ: 'í•˜ë“œì½”ë“œëœ ì¤‘ìš”ì •ë³´' ê´€ë ¨
+    printf("[ì·¨ì•½ì  5] í•˜ë“œì½”ë“œëœ ë¹„ë°€ë²ˆí˜¸ (CWE-798)\n");
+    const char* admin_password = "very_secret_hardcoded_password"; // <--- Semgrepì´ íƒì§€í•  ê°€ëŠ¥ì„± ë†’ìŒ
+    printf("ê´€ë¦¬ì ë¹„ë°€ë²ˆí˜¸ê°€ ì½”ë“œì— ì§ì ‘ í¬í•¨ë˜ì–´ ìˆìŠµë‹ˆë‹¤.\n");
     printf("----------------------------------------\n\n");
 
     return 0;
