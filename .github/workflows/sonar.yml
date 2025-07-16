@@ -13,5 +13,5 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v2
         env:
-          SONAR_HOST_URL: http://your-sonarqube-server:9000
+          SONAR_HOST_URL: https://83afebc90498.ngrok-free.app
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
